@@ -1,6 +1,13 @@
 # Jack-Conneeect
 a jack connection manager aimed at setups with jack clients with lots of in/outputs.
 
+# Installation (soon^tm)
+``` bash
+python -m venv venv
+source venv/bin/activate
+pip install .
+jack-conneeect -h
+```
 
 # Configuration
 Jack connections are read from a connection file, some example connection files can be found in the `connection_files` directory.

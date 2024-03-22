@@ -59,7 +59,10 @@ def remove_connections(exclude: list[str]):
             c.disconnect(p, c_p)
 
 
-@click.command(help="Set Jack Connections")
+@click.command(
+    help="Set Jack Connections",
+    context_settings=dict(help_option_names=["-h", "--help"]),
+)
 @click.option(
     "-c",
     "--config",
@@ -76,14 +79,20 @@ def remove_connections(exclude: list[str]):
     default=False,
     help="remove all connections except for those specified with -e",
 )
-@click.option("-e", "--exclude", multiple=True, default=[])
+@click.option(
+    "-e",
+    "--exclude",
+    multiple=True,
+    default=[],
+    help="clients that start with the specified string will not be disconnected, can be specified multiple times",
+)
+# TODO implement this
 @click.option(
     "--client-name", help="Name for the jack client", default="jack_conneeect"
 )
 @click.option("-v", "--verbose", count=True, help="increase verbosity level.")
 def main(config_path, disconnect, exclude, client_name, verbose):
 
-    # TODO handle jack server not existing
     if verbose == 0:
         log.setLevel(logging.INFO)
     elif verbose >= 1:

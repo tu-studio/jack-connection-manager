@@ -2,10 +2,15 @@ import yaml
 import jack
 
 from pathlib import Path
+from time import sleep
 
 import logging
+import sys
 
 log = logging.getLogger()
+
+reconnect_wait_time = 2
+reconnect_number_retries = 20
 
 
 def add_to_dict_of_sets(d: dict, key, value):
@@ -17,14 +22,34 @@ def add_to_dict_of_sets(d: dict, key, value):
 
 class ConnectionManager:
     def __init__(self, config_path: Path) -> None:
-        self.c = jack.Client("jack_conneeect", no_start_server=True)
+        # TODO handle jack server not existing
+
         self.source_ports: dict[str, set[str]] = {}
         self.all_ports: dict[str, set[str]] = {}
 
         self.build_connection_dict(config_path)
+
+        self.connect_to_jack_server()
+
         self.set_initial_connections()
         self.c.set_port_registration_callback(self.set_connection_for_port, False)
         self.c.activate()
+
+    def connect_to_jack_server(self, clientname="jack_conneeect", servername=None):
+        n_tries = 0
+        while n_tries < reconnect_number_retries:
+            try:
+                self.c = jack.Client(
+                    clientname, no_start_server=True, servername=servername
+                )
+                break
+            except jack.JackOpenError:
+                logging.warn("couldn't connect to jack server. retrying...")
+                n_tries += 1
+                sleep(reconnect_wait_time)
+        else:
+            logging.error("could not connect to jack server")
+            sys.exit(-2)
 
     def build_connection_dict(self, config_path: Path):
         with open(config_path) as f:
