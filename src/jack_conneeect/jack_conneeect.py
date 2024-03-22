@@ -1,99 +1,46 @@
-import yaml
 import jack
 import click
-from time import sleep
-from dataclasses import dataclass
 import logging
 from pathlib import Path
 import sys
 import signal
 
+from jack_conneeect.ConnectionManager import ConnectionManager
+
 logFormat = "%(asctime)s [%(levelname)-5.5s]: %(message)s"
 timeFormat = "%Y-%m-%d %H:%M:%S"
 logging.basicConfig(format=logFormat, datefmt=timeFormat)
 log = logging.getLogger()
-log.setLevel(logging.DEBUG)
-
-base_path = Path(__file__).parent
 
 
-def add_to_dict_of_sets(d: dict, key, value):
-    if key in d:
-        d[key].add(value)
-    else:
-        d[key] = set((value,))
+# lists for constructing default config paths
+default_config_file_path = Path("jack-conneeect")
+default_config_file_name_options = [
+    "connections.yml",
+    "connection.yml",
+    "jack-conneeect_conf.yml",
+    "jack-conneeect-conf.yml",
+    "jack-conneeect_config.yml",
+    "jack-conneeect-config.yml",
+    "config.yml",
+    "conf.yml",
+]
+default_config_file_locations = [
+    Path.home() / ".config",
+    Path("/etc"),
+    Path("/usr/local/etc"),
+]
 
 
-class ConnectionManager:
-    def __init__(self, config_path: Path) -> None:
-        self.c = jack.Client("jack_conneeect", no_start_server=True)
-        self.source_ports: dict[str, set[str]] = {}
-        self.all_ports: dict[str, set[str]] = {}
-
-        self.build_connection_dict(config_path)
-        self.set_initial_connections()
-        self.c.set_port_registration_callback(self.set_connection_for_port, False)
-        self.c.activate()
-
-    def build_connection_dict(self, config_path: Path):
-        with open(config_path) as f:
-            conf = yaml.load(f, yaml.Loader)
-
-        for source_client in conf:
-            source_base = source_client["client"]
-            n_channels = source_client["n_channels"]
-            source_start_index = (
-                source_client["start_index"] if "start_index" in source_client else 1
-            )
-
-            for sink_client in source_client["connections"]:
-                sink_base = sink_client["client"]
-                sink_start_index = (
-                    sink_client["start_index"] if "start_index" in sink_client else 1
-                )
-
-                for i in range(n_channels):
-                    source_port = f"{source_base}{source_start_index+i}"
-                    sink_port = f"{sink_base}{sink_start_index+i}"
-                    log.debug(f"parsing connection {source_port} -> {sink_port}")
-                    add_to_dict_of_sets(self.source_ports, source_port, sink_port)
-                    add_to_dict_of_sets(self.all_ports, sink_port, source_port)
-                    add_to_dict_of_sets(self.all_ports, source_port, sink_port)
-
-    def set_initial_connections(self):
-        for source in self.source_ports:
-            try:
-                source_port = self.c.get_port_by_name(source)
-            except jack.JackError:
-                continue
-
-            self.set_connection_for_port(source_port)
-
-    def set_connection_for_port(self, port: jack.Port, registered: bool = True):
-        if not registered:
-            log.debug("callback unregister port")
-            return
-
-        if not port.name in self.all_ports:
-            return
-
-        sinks = self.all_ports[port.name]
-        connections = self.c.get_all_connections(port)
-
-        for sink in sinks:
-            try:
-                sink_port = self.c.get_port_by_name(sink)
-            except jack.JackError:
-                continue
-
-            if sink_port not in connections:
-                if port.is_output:
-                    self.c.connect(port, sink_port)
-                else:
-                    self.c.connect(sink_port, port)
-
-    def deactivate(self, *args):
-        self.c.deactivate()
+def get_default_config_path():
+    for possible_config_path in (
+        base / default_config_file_path / filename
+        for base in default_config_file_locations
+        for filename in default_config_file_name_options
+    ):
+        if possible_config_path.exists():
+            return possible_config_path
+    return None
 
 
 def remove_connections(exclude: list[str]):
@@ -118,7 +65,7 @@ def remove_connections(exclude: list[str]):
     "--config",
     "config_path",
     type=click.Path(exists=True, dir_okay=False, resolve_path=True, path_type=Path),
-    default=base_path / "connections.yml",
+    default=None,
     help="path to configfile",
 )
 @click.option(
@@ -127,22 +74,43 @@ def remove_connections(exclude: list[str]):
     "disconnect",
     is_flag=True,
     default=False,
-    help="remove all connections",
+    help="remove all connections except for those specified with -e",
 )
 @click.option("-e", "--exclude", multiple=True, default=[])
-def main(config_path, disconnect, exclude):
+@click.option(
+    "--client-name", help="Name for the jack client", default="jack_conneeect"
+)
+@click.option("-v", "--verbose", count=True, help="increase verbosity level.")
+def main(config_path, disconnect, exclude, client_name, verbose):
 
     # TODO handle jack server not existing
+    if verbose == 0:
+        log.setLevel(logging.INFO)
+    elif verbose >= 1:
+        log.setLevel(logging.DEBUG)
 
+    # do the disconnect!
     if disconnect:
         remove_connections(exclude)
         log.info("exiting...")
         sys.exit(0)
 
+    # find config path
+    if config_path is None:
+        # check different paths for a config file, with the highest one taking precedence
+        config_path = get_default_config_path()
+
+    if config_path is None:
+        log.error("could not find config file, please supply one using -c")
+        sys.exit(-1)
+
     cm = ConnectionManager(config_path)
 
+    log.info("jack-conneeect is running")
     for sig in [signal.SIGINT, signal.SIGTERM]:
         signal.signal(sig, cm.deactivate)
+
+    # wait until something happens :zZzZzz:
     signal.pause()
 
 
