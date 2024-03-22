@@ -1,0 +1,76 @@
+- from: system:capture_
+  n_channels: 64
+  start_index: 1
+  to:
+    - client: audio-matrix:input_
+      start_index: 0
+- from: audio-matrix:wfs_
+  n_channels: 64
+  start_index: 0
+  to:
+    - client: twonder1:input
+      start_index: 1
+    - client: twonder2:input
+      start_index: 1
+    - client: twonder3:input
+      start_index: 1
+    - client: twonder4:input
+      start_index: 1
+    - client: twonder5:input
+      start_index: 1
+    - client: twonder6:input
+      start_index: 1
+    - client: twonder7:input
+      start_index: 1
+    - client: twonder8:input
+      start_index: 1
+- from: twonder1:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 1
+- from: twonder2:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 17
+- from: twonder3:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 33
+- from: twonder4:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 49
+
+- from: twonder5:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 65
+- from: twonder6:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 81
+
+- from: twonder7:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 97
+- from: twonder8:speaker
+  n_channels: 16
+  start_index: 1
+  to:
+    - client: system:playback_
+      start_index: 113

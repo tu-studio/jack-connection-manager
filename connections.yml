@@ -1,0 +1,6 @@
+- from: audio-matrix:wfs_
+  n_channels: 30
+  start_index: 5
+  to:
+    - client: audio-matrix:input_
+      start_index: 10
