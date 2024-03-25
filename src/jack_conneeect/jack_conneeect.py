@@ -91,6 +91,7 @@ def remove_connections(exclude: list[str]):
     "--client-name", help="Name for the jack client", default="jack_conneeect"
 )
 @click.option("-v", "--verbose", count=True, help="increase verbosity level.")
+@click.version_option()
 def main(config_path, disconnect, exclude, client_name, verbose):
 
     if verbose == 0:
