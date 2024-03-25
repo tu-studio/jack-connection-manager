@@ -1,0 +1,13 @@
+[Unit]
+Description=jack-conneeect
+After=network.target
+[Install]
+# There is no multi-user.target for a user service, therefore we use default.target
+WantedBy=default.target
+
+[Service]
+Type=simple
+ExecStart=@bin_dir@/jack-conneeect -c /usr/local/etc/jack-conneeect/connections.yml
+# LimitRTPRIO=95
+# LimitRTTIME=infinity
+# LimitMEMLOCK=infinity

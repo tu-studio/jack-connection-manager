@@ -69,7 +69,7 @@ def remove_connections(exclude: list[str]):
     "config_path",
     type=click.Path(exists=True, dir_okay=False, resolve_path=True, path_type=Path),
     default=None,
-    help="path to configfile",
+    help="path to connection file",
 )
 @click.option(
     "-r",
@@ -110,7 +110,7 @@ def main(config_path, disconnect, exclude, client_name, verbose):
         config_path = get_default_config_path()
 
     if config_path is None:
-        log.error("could not find config file, please supply one using -c")
+        log.error("could not find connection file, please supply one using -c")
         sys.exit(-1)
 
     cm = ConnectionManager(config_path)
