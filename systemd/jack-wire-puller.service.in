@@ -1,5 +1,5 @@
 [Unit]
-Description=jack-conneeect
+Description=jack-wire-puller
 After=network.target
 [Install]
 # There is no multi-user.target for a user service, therefore we use default.target
@@ -7,7 +7,7 @@ WantedBy=default.target
 
 [Service]
 Type=simple
-ExecStart=@bin_dir@/jack-conneeect -c /usr/local/etc/jack-conneeect/connections.yml
+ExecStart=@bin_dir@/jack-wire-puller -c /usr/local/etc/jack-wire-puller/connections.yml
 # LimitRTPRIO=95
 # LimitRTTIME=infinity
 # LimitMEMLOCK=infinity

@@ -5,7 +5,7 @@ from pathlib import Path
 import sys
 import signal
 
-from jack_conneeect.ConnectionManager import ConnectionManager
+from jack_wire_puller.ConnectionManager import ConnectionManager
 
 logFormat = "%(asctime)s [%(levelname)-5.5s]: %(message)s"
 timeFormat = "%Y-%m-%d %H:%M:%S"
@@ -14,14 +14,14 @@ log = logging.getLogger()
 
 
 # lists for constructing default config paths
-default_config_file_path = Path("jack-conneeect")
+default_config_file_path = Path("jack-wire-puller")
 default_config_file_name_options = [
     "connections.yml",
     "connection.yml",
-    "jack-conneeect_conf.yml",
-    "jack-conneeect-conf.yml",
-    "jack-conneeect_config.yml",
-    "jack-conneeect-config.yml",
+    "jack-wire-puller_conf.yml",
+    "jack-wire-puller-conf.yml",
+    "jack-wire-puller_config.yml",
+    "jack-wire-puller-config.yml",
     "config.yml",
     "conf.yml",
 ]
@@ -87,7 +87,7 @@ def remove_connections(exclude: list[str]):
     help="clients that start with the specified string will not be disconnected, can be specified multiple times",
 )
 @click.option(
-    "--client-name", help="Name for the jack client", default="jack_conneeect"
+    "--client-name", help="Name for the jack client", default="jack_wire_puller"
 )
 @click.option("-v", "--verbose", count=True, help="increase verbosity level.")
 @click.version_option()
@@ -115,7 +115,7 @@ def main(config_path, disconnect, exclude, client_name, verbose):
 
     cm = ConnectionManager(config_path, client_name)
 
-    log.info("jack-conneeect is running")
+    log.info("jack-wire-puller is running")
     for sig in [signal.SIGINT, signal.SIGTERM]:
         signal.signal(sig, cm.deactivate)
 

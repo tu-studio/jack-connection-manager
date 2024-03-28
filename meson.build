@@ -1,5 +1,5 @@
-project('jack-conneeect',
-  version: run_command('python3', '-c' , 'from src.jack_conneeect._version import get_versions;print(get_versions()["version"])', check: true).stdout().strip())
+project('jack-wire-puller',
+  version: run_command('python3', '-c' , 'from src.jack_wire_puller._version import get_versions;print(get_versions()["version"])', check: true).stdout().strip())
 
 
 if get_option('versioned_install')
@@ -8,9 +8,9 @@ else
 	install_postfix = ''
 endif
 
-install_venv_path = get_option('prefix') / get_option('datadir') / ('jack-conneeect' + install_postfix) / 'venv'
+install_venv_path = get_option('prefix') / get_option('datadir') / ('jack-wire-puller' + install_postfix) / 'venv'
 build_venv_path = meson.current_source_dir() / 'venv'
-wheel_name = 'jack_conneeect-' + meson.project_version() + '-py3-none-any.whl'
+wheel_name = 'jack_wire_puller-' + meson.project_version() + '-py3-none-any.whl'
 
 # --- build python wheel
 # create venv (does nothing if it already exists)
@@ -22,7 +22,7 @@ run_command('@0@/bin/pip'.format(build_venv_path),  'install', 'build', check: t
 # build wheel
 run_command('@0@/bin/python3'.format(build_venv_path), '-m', 'build', '--wheel', meson.current_source_dir(), check: true)
 
-# --- install jack-conneeect wheel with pip
+# --- install jack-wire-puller wheel with pip
 # create virtual environment
 meson.add_install_script(
 	'sh', '-c',
@@ -35,21 +35,21 @@ meson.add_install_script(
 		install_venv_path, meson.current_source_dir() / 'dist' / wheel_name)
 )
 
-# linking jack-conneeect binary to bindir
+# symlink jack-wire-puller binary to bindir
 meson.add_install_script(
 	'sh', '-c',
 	'sudo ln -s -f @0@ @1@'.format(
-        install_venv_path / 'bin' / 'jack-conneeect',
-        get_option('prefix') / get_option('bindir') / 'jack-conneeect' + install_postfix)
+        install_venv_path / 'bin' / 'jack-wire-puller',
+        get_option('prefix') / get_option('bindir') / 'jack-wire-puller' + install_postfix)
 )
 
 if get_option('versioned_install')
-	# linking jack-conneeect binary to bindir
+	# symlink version specific jack-wire-puller binary to bindir
 	meson.add_install_script(
 		'sh', '-c',
 		'sudo ln -s -f @0@ @1@'.format(
-			get_option('prefix') / get_option('bindir') / 'jack-conneeect' + install_postfix,
-			get_option('prefix') / get_option('bindir') / 'jack-conneeect')
+			get_option('prefix') / get_option('bindir') / 'jack-wire-puller' + install_postfix,
+			get_option('prefix') / get_option('bindir') / 'jack-wire-puller')
 )
 endif
 
