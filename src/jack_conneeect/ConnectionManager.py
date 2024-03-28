@@ -21,7 +21,7 @@ def add_to_dict_of_sets(d: dict, key, value):
 
 
 class ConnectionManager:
-    def __init__(self, config_path: Path) -> None:
+    def __init__(self, config_path: Path, clientname="jack_conneeect") -> None:
         # TODO handle jack server not existing
 
         self.source_ports: dict[str, set[str]] = {}
@@ -29,13 +29,13 @@ class ConnectionManager:
 
         self.build_connection_dict(config_path)
 
-        self.connect_to_jack_server()
+        self.connect_to_jack_server(clientname)
 
         self.set_initial_connections()
         self.c.set_port_registration_callback(self.set_connection_for_port, False)
         self.c.activate()
 
-    def connect_to_jack_server(self, clientname="jack_conneeect", servername=None):
+    def connect_to_jack_server(self, clientname, servername=None):
         n_tries = 0
         while n_tries < reconnect_number_retries:
             try:

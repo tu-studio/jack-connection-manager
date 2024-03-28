@@ -86,7 +86,6 @@ def remove_connections(exclude: list[str]):
     default=[],
     help="clients that start with the specified string will not be disconnected, can be specified multiple times",
 )
-# TODO implement this
 @click.option(
     "--client-name", help="Name for the jack client", default="jack_conneeect"
 )
@@ -114,7 +113,7 @@ def main(config_path, disconnect, exclude, client_name, verbose):
         log.error("could not find connection file, please supply one using -c")
         sys.exit(-1)
 
-    cm = ConnectionManager(config_path)
+    cm = ConnectionManager(config_path, client_name)
 
     log.info("jack-conneeect is running")
     for sig in [signal.SIGINT, signal.SIGTERM]:
