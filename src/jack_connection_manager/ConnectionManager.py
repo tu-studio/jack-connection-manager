@@ -21,7 +21,7 @@ def add_to_dict_of_sets(d: dict, key, value):
 
 
 class ConnectionManager:
-    def __init__(self, config_path: Path, clientname="jack_wire_puller") -> None:
+    def __init__(self, config_path: Path, clientname="jack_connection_manager") -> None:
         # TODO handle jack server not existing
 
         self.source_ports: dict[str, set[str]] = {}
