@@ -7,19 +7,19 @@ where = ["src"]
 
 
 [tool.setuptools.package-data]
-jack_wire_puller = ["*.yml"]
+jack_connection_manager = ["*.yml"]
 
 # automatically handle version numbers
 [tool.versioneer]
 VCS = "git"
 style = "pep440"
-versionfile_source = "src/jack_wire_puller/_version.py"
-versionfile_build = "jack_wire_puller/_version.py"
+versionfile_source = "src/jack_connection_manager/_version.py"
+versionfile_build = "jack_connection_manager/_version.py"
 tag_prefix = ""
-parentdir_prefix = "jack_wire_puller-"
+parentdir_prefix = "jack_connection_manager-"
 
 [project]
-name = "jack_wire_puller"
+name = "jack_connection_manager"
 description = "A tool for automatically connecting jack clients with lots of ports"
 authors = [{ name = "Max Weidauer", email = "weidauer@campus.tu-berlin.de" }]
 readme = "README.md"
@@ -29,7 +29,7 @@ dependencies = ["JACK-Client", "click", "pyYAML"]
 license = { file = "LICENSE" }
 
 [project.scripts]
-jack-wire-puller = "jack_wire_puller.jack_wire_puller:main"
+jack-connection-manager = "jack_connection_manager.jack_connection_manager:main"
 
 [project.urls]
 Github = "https://github.com/tu-studio/jack-conneeeect"

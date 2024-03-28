@@ -1,4 +1,4 @@
-# jack-wire-puller
+# jack-connection-manager
 a jack connection manager aimed at setups with jack clients with lots of in/outputs.
 
 # Installation
@@ -6,7 +6,7 @@ a jack connection manager aimed at setups with jack clients with lots of in/outp
 python -m venv venv
 source venv/bin/activate
 pip install .
-jack-wire-puller -h
+jack-connection-manager -h
 ```
 
 # Configuration
