@@ -1,6 +1,8 @@
 [Unit]
 Description=jack-connection-manager
-After=network.target
+After=jack.service
+Requires=jack.service
+
 [Install]
 # There is no multi-user.target for a user service, therefore we use default.target
 WantedBy=default.target
