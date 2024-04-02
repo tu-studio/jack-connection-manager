@@ -9,7 +9,7 @@ WantedBy=default.target
 
 [Service]
 Type=simple
-ExecStart=@bin_dir@/jack-connection-manager -c /usr/local/etc/jack-connection-manager/connections.yml
+ExecStart=@bin_dir@/jack-connection-manager
 # LimitRTPRIO=95
 # LimitRTTIME=infinity
 # LimitMEMLOCK=infinity
