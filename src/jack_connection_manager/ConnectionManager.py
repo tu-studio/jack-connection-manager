@@ -99,7 +99,6 @@ class ConnectionManager:
         connections = self.c.get_all_connections(port)
 
         for sink in sinks:
-            log.debug(sink)
             try:
                 sink_port = self.c.get_port_by_name(sink)
             except jack.JackError:
@@ -127,6 +126,33 @@ class ConnectionManager:
                     pass
                 else:
                     raise
+
+    def print_missing_connections(self):
+        missing_ports = set()
+        missing_connections = set()
+        for source in self.source_ports:
+            try:
+                source_port = self.c.get_port_by_name(source)
+            except jack.JackError:
+                print(f"missing port: {source}")
+                missing_ports.add(source)
+                continue
+
+            sinks = self.source_ports[source]
+            connections = self.c.get_all_connections(source_port)
+
+            for sink in sinks:
+                try:
+                    sink_port = self.c.get_port_by_name(sink)
+                except jack.JackError:
+                    print(f"missing port: {sink}")
+                    missing_ports.add(sink)
+                    continue
+
+                if sink_port not in connections:
+                    print(f"missing connection {source_port.name} -> {sink_port.name}")
+                    missing_connections.add((source, sink))
+        return missing_ports, missing_connections
 
     def deactivate(self, *args):
         log.info("received deactivation signal")

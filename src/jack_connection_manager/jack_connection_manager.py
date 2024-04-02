@@ -89,11 +89,19 @@ def remove_connections(exclude: list[str]):
 @click.option(
     "--client-name", help="Name for the jack client", default="jack_connection_manager"
 )
+@click.option(
+    "-l",
+    "--list-missing",
+    help="List missing ports and connections",
+    is_flag=True,
+    default=False,
+)
 @click.option("-v", "--verbose", count=True, help="increase verbosity level.")
 @click.version_option()
-def main(config_path, disconnect, exclude, client_name, verbose):
-
-    if verbose == 0:
+def main(config_path, disconnect, exclude, client_name, list_missing, verbose):
+    if list_missing:
+        log.setLevel(logging.WARN)
+    elif verbose == 0:
         log.setLevel(logging.INFO)
     elif verbose >= 1:
         log.setLevel(logging.DEBUG)
@@ -114,6 +122,10 @@ def main(config_path, disconnect, exclude, client_name, verbose):
         sys.exit(-1)
 
     cm = ConnectionManager(config_path, client_name)
+
+    if list_missing:
+        cm.print_missing_connections()
+        sys.exit(0)
 
     log.info("jack-connection-manager is running")
     for sig in [signal.SIGINT, signal.SIGTERM]:
