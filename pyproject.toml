@@ -32,5 +32,5 @@ license = { file = "LICENSE" }
 jack-connection-manager = "jack_connection_manager.jack_connection_manager:main"
 
 [project.urls]
-Github = "https://github.com/tu-studio/jack-conneeeect"
-Issues = "https://github.com/tu-studio/jack-conneeeect/issues"
+Github = "https://github.com/tu-studio/jack-connection-manager"
+Issues = "https://github.com/tu-studio/jack-connection-manager/issues"
