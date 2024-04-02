@@ -119,8 +119,8 @@ def main(config_path, disconnect, exclude, client_name, verbose):
     for sig in [signal.SIGINT, signal.SIGTERM]:
         signal.signal(sig, cm.deactivate)
 
-    # wait until something happens :zZzZzz:
-    signal.pause()
+    # start the connection loop
+    cm.connection_loop()
 
 
 if __name__ == "__main__":

@@ -6,6 +6,8 @@ from time import sleep
 
 import logging
 import sys
+import queue
+from threading import Event
 
 log = logging.getLogger()
 
@@ -30,7 +32,8 @@ class ConnectionManager:
         self.build_connection_dict(config_path)
 
         self.connect_to_jack_server(clientname)
-
+        self.queue = queue.Queue()
+        self.stop_event = Event()
         self.set_initial_connections()
         self.c.set_port_registration_callback(self.set_connection_for_port, False)
         self.c.activate()
@@ -105,9 +108,27 @@ class ConnectionManager:
             if sink_port not in connections:
                 log.debug(f"connecting {port.name} -> {sink_port.name}")
                 if port.is_output:
-                    self.c.connect(port, sink_port)
+                    self.queue.put((port, sink_port))
                 else:
-                    self.c.connect(sink_port, port)
+                    self.queue.put((sink_port, port))
+
+    def connection_loop(self):
+        while not self.stop_event.is_set():
+            try:
+                (out_port, in_port) = self.queue.get(timeout=1)
+            except queue.Empty:
+                continue
+
+            try:
+                self.c.connect(out_port, in_port)
+            except jack.JackErrorCode as e:
+                # handle connection already existing
+                if e.code == 17:
+                    pass
+                else:
+                    raise
 
     def deactivate(self, *args):
+        log.info("received deactivation signal")
+        self.stop_event.set()
         self.c.deactivate()
