@@ -34,9 +34,10 @@ class ConnectionManager:
         self.connect_to_jack_server(clientname)
         self.queue = queue.Queue()
         self.stop_event = Event()
-        self.set_initial_connections()
         self.c.set_port_registration_callback(self.set_connection_for_port, False)
         self.c.activate()
+        self.set_initial_connections()
+
 
     def connect_to_jack_server(self, clientname, servername=None):
         n_tries = 0
