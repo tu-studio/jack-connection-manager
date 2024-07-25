@@ -25,7 +25,7 @@ authors = [{ name = "Max Weidauer", email = "weidauer@campus.tu-berlin.de" }]
 readme = "README.md"
 requires-python = ">=3.10"
 dynamic = ["version"]
-dependencies = ["JACK-Client", "click", "pyYAML"]
+dependencies = ["JACK-Client", "click", "pyYAML", "sdnotify"]
 license = { file = "LICENSE" }
 
 [project.scripts]

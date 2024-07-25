@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import signal
 
+from sdnotify import SystemdNotifier
 from jack_connection_manager.ConnectionManager import ConnectionManager
 
 logFormat = "%(asctime)s [%(levelname)-5.5s]: %(message)s"
@@ -122,15 +123,15 @@ def main(config_path, disconnect, exclude, client_name, list_missing, verbose):
         sys.exit(-1)
 
     cm = ConnectionManager(config_path, client_name)
-
     if list_missing:
         cm.print_missing_connections()
         sys.exit(0)
+    systemd = SystemdNotifier()
 
     log.info("jack-connection-manager is running")
     for sig in [signal.SIGINT, signal.SIGTERM]:
         signal.signal(sig, cm.deactivate)
-
+    systemd.notify("READY=1")
     # start the connection loop
     cm.connection_loop()
 
