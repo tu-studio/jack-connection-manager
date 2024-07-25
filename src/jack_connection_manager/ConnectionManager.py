@@ -38,7 +38,6 @@ class ConnectionManager:
         self.c.activate()
         self.set_initial_connections()
 
-
     def connect_to_jack_server(self, clientname, servername=None):
         n_tries = 0
         while n_tries < reconnect_number_retries:
@@ -126,6 +125,12 @@ class ConnectionManager:
                 if e.code == 17:
                     pass
                 else:
+
+                    log.error(
+                        f"Jack-Error {e.code} while setting connection: {e.message}"
+                    )
+                    pass
+
                     raise
 
     def print_missing_connections(self):
