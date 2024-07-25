@@ -8,7 +8,8 @@ Requires=jack.service
 WantedBy=default.target
 
 [Service]
-Type=simple
+Type=notify
+Environment=PYTHONUNBUFFERED=true
 ExecStart=@bin_dir@/jack-connection-manager
 # LimitRTPRIO=95
 # LimitRTTIME=infinity
