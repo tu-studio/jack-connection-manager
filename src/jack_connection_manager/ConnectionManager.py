@@ -139,7 +139,7 @@ class ConnectionManager:
                         t = Timer(
                             retry_timer,
                             self.queue.put,
-                            args=((out_port, in_port, retries_remaining - 1)),
+                            args=((out_port, in_port, retries_remaining - 1),),
                         )
                         t.start()
                     else:
