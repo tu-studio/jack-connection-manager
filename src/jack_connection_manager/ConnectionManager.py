@@ -118,8 +118,11 @@ class ConnectionManager:
         """main loop that checks if new connections were put into the conection queue"""
         while not self.stop_event.is_set():
             try:
-                (out_port, in_port, retries_remaining) = self.queue.get(timeout=1)
+                out_port, in_port, retries_remaining = self.queue.get(timeout=1)
             except queue.Empty:
+                continue
+            except TypeError:
+                log.error("TypeError while unpacking ports from queue...")
                 continue
 
             try:
@@ -136,7 +139,7 @@ class ConnectionManager:
                         t = Timer(
                             retry_timer,
                             self.queue.put,
-                            args=(out_port, in_port, retries_remaining - 1),
+                            args=((out_port, in_port, retries_remaining - 1)),
                         )
                         t.start()
                     else:
