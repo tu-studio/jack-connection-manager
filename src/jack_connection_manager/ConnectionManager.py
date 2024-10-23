@@ -7,12 +7,15 @@ from time import sleep
 import logging
 import sys
 import queue
-from threading import Event
+from threading import Event, Timer
 
 log = logging.getLogger()
 
 reconnect_wait_time = 2
 reconnect_number_retries = 20
+
+retry_timer = 1
+n_retries = 15
 
 
 def add_to_dict_of_sets(d: dict, key, value):
@@ -32,7 +35,7 @@ class ConnectionManager:
         self.build_connection_dict(config_path)
 
         self.connect_to_jack_server(clientname)
-        self.queue = queue.Queue()
+        self.queue: queue.Queue[tuple[jack.Port, jack.Port, int]] = queue.Queue()
         self.stop_event = Event()
         self.c.set_port_registration_callback(self.set_connection_for_port, False)
         self.c.activate()
@@ -47,7 +50,7 @@ class ConnectionManager:
                 )
                 break
             except jack.JackOpenError:
-                logging.warn("couldn't connect to jack server. retrying...")
+                logging.warning("couldn't connect to jack server. retrying...")
                 n_tries += 1
                 sleep(reconnect_wait_time)
         else:
@@ -107,15 +110,19 @@ class ConnectionManager:
             if sink_port not in connections:
                 log.debug(f"connecting {port.name} -> {sink_port.name}")
                 if port.is_output:
-                    self.queue.put((port, sink_port))
+                    self.queue.put((port, sink_port, n_retries))
                 else:
-                    self.queue.put((sink_port, port))
+                    self.queue.put((sink_port, port, n_retries))
 
     def connection_loop(self):
+        """main loop that checks if new connections were put into the conection queue"""
         while not self.stop_event.is_set():
             try:
-                (out_port, in_port) = self.queue.get(timeout=1)
+                out_port, in_port, retries_remaining = self.queue.get(timeout=1)
             except queue.Empty:
+                continue
+            except TypeError:
+                log.error("TypeError while unpacking ports from queue...")
                 continue
 
             try:
@@ -125,13 +132,20 @@ class ConnectionManager:
                 if e.code == 17:
                     pass
                 else:
-
-                    log.error(
-                        f"Jack-Error {e.code} while setting connection: {e.message}"
-                    )
-                    pass
-
-                    raise
+                    if retries_remaining > 0:
+                        log.warning(
+                            f"Jack-Error {e.code} while setting connection: {e.message}, retrying..."
+                        )
+                        t = Timer(
+                            retry_timer,
+                            self.queue.put,
+                            args=((out_port, in_port, retries_remaining - 1),),
+                        )
+                        t.start()
+                    else:
+                        log.error(
+                            f"Jack-Error {e.code} while setting connection: {e.message}"
+                        )
 
     def print_missing_connections(self):
         missing_ports = set()
