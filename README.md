@@ -2,10 +2,19 @@
 a jack connection manager aimed at setups with jack clients with lots of in/outputs.
 
 # Installation
+
+``` bash
+pip install jack-connection-manager
+jack-connection-manager -h
+```
+
+
+## for deverlopment
+clone this repo
 ``` bash
 python -m venv venv
 source venv/bin/activate
-pip install .
+pip install -e .
 jack-connection-manager -h
 ```
 
